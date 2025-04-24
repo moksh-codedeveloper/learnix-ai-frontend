@@ -1,6 +1,8 @@
 import { create } from "zustand";
 import axios from "axios";
 import { useUserStore } from "./userStore"; // Import userStore
+import {useRouter} from "next/navigation";
+const router = useRouter();
 // import axios from "@/utils/axios";
 interface AuthState {
   loading: boolean;
@@ -29,9 +31,12 @@ export const useAuthStore = create<AuthState>((set) => ({
   login: async (credentials) => {
     set({ loading: true });
     try {
-      await axios.post("/api/user/login", credentials);
+      const res = await axios.post("/api/user/login", credentials);
       await useUserStore.getState().fetchUser(); // Fetch user data after login
       console.log("login complete :-" + credentials);
+      if(res.data.user.role){
+        router.push("/admin");
+      }
     } catch (error) {
       console.error("Login failed:", error);
     } finally {
